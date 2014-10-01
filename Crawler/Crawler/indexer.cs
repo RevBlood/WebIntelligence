@@ -120,7 +120,7 @@ namespace Crawler {
                 foreach (KeyValuePair<string, LinkedList<int>> res in invertedIndex) {
                     string lldocIds = "";
                     foreach(int i in res.Value) {
-                        lldocIds += i.ToString() + ',';
+                        lldocIds += ',' + i.ToString();
                     }
 
                     outfile.WriteLine(res.Key + " " + lldocIds);

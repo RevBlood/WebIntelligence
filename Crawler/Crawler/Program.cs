@@ -19,7 +19,6 @@ namespace Crawler {
             Console.ReadLine();
             //CrawlPages(initialPage);
             indexer index = new indexer();
-
         }
 
         static void CrawlPages(string initialPage) {
