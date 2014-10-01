@@ -16,9 +16,13 @@ namespace Crawler {
             string initialPage = "http://www.oprah.com";
 
             
-            Console.ReadLine();
+
             //CrawlPages(initialPage);
-            indexer index = new indexer();
+            //indexer index = new indexer();
+            Searcher search = new Searcher();
+            search.startSearch();
+
+            Console.ReadLine();
         }
 
         static void CrawlPages(string initialPage) {

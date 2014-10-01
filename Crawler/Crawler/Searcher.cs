@@ -19,8 +19,9 @@ namespace Crawler {
 
             //Get query from user
             Console.WriteLine("Please enter your query");
-            searchTerms = Console.ReadLine().Split(null).ToList();
-
+            //searchTerms = Console.ReadLine().Split(null).ToList();
+            searchTerms.Add("on");
+            searchTerms.Add("ShowBe");
             findDocumentsWithTerms();
         }
 
@@ -32,8 +33,18 @@ namespace Crawler {
         }
 
         private void printDick() {
-
-            documentswithTerms.ToList().ForEach(x => Console.WriteLine(x.Key));
+            /*
+            List<int> results = documentswithTerms[searchTerms.First()].ToList();
+            foreach (int res in results) {
+                Console.WriteLine(res.ToString());
+            }
+             */
+            foreach (KeyValuePair<string, LinkedList<int>> kv in documentswithTerms) {
+                foreach (int i in kv.Value) {
+                    Console.WriteLine(kv.Key + " has value: " + i.ToString());
+                }
+            }
+            Console.WriteLine("test, what was found????");
         }
 
         private void findDocumentsWithTerms() {
@@ -44,27 +55,30 @@ namespace Crawler {
             }
 
             //Open the inverted index
-            StreamReader sr = new StreamReader(invertedIndexLocation);
+            using (StreamReader sr = new StreamReader(invertedIndexLocation)) {
 
-            // Read and display lines from the file until the end of the file is reached.
-            string line;
-            while ((line = sr.ReadLine()) != null) {
-                invertedIndex.Add(line);
+                // Read and display lines from the file until the end of the file is reached.
+                string line;
+                while ((line = sr.ReadLine()) != null) {
+                    invertedIndex.Add(line);
+                }
             }
-
             //Go through the invertedIndex and compare each searchTerm to all terms found in the invertedIndex
             List<string> docIds = new List<string>();
 
             foreach (string indexTerm in invertedIndex) {
                 foreach (string searchTerm in searchTerms) {
-
                     //When a match is found, extract all documents containing the match and fill them into dictionary as values for the terms
                     if (indexTerm.Substring(0, indexTerm.IndexOf(' ')) == searchTerm) {
+                        int test = indexTerm.IndexOf(' ');
 
-                        docIds = indexTerm.Substring(indexTerm.IndexOf(' '), indexTerm.Length).Split(',').ToList();
+                        docIds = indexTerm.Substring(test+1, indexTerm.Length - (test+1)).Split(',').ToList();
 
                         foreach (string docId in docIds) {
-                            documentswithTerms[searchTerm].AddLast(Convert.ToInt32(docId));
+                            Console.WriteLine(docId);
+                            if (docId != "" && docId != null) {
+                                documentswithTerms[searchTerm].AddLast(Convert.ToInt32(docId));
+                            }
                         }
 
                     }
