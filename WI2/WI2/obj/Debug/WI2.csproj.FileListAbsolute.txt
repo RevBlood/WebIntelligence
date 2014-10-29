@@ -1,0 +1,18 @@
+D:\Medier\Skrivebord\Semester7\Web Intelligence\Mini-project2\WI2\WI2\bin\Debug\WI2.exe.config
+D:\Medier\Skrivebord\Semester7\Web Intelligence\Mini-project2\WI2\WI2\bin\Debug\WI2.exe
+D:\Medier\Skrivebord\Semester7\Web Intelligence\Mini-project2\WI2\WI2\bin\Debug\WI2.pdb
+D:\Medier\Skrivebord\Semester7\Web Intelligence\Mini-project2\WI2\WI2\obj\Debug\WI2.csprojResolveAssemblyReference.cache
+D:\Medier\Skrivebord\Semester7\Web Intelligence\Mini-project2\WI2\WI2\obj\Debug\WI2.exe
+D:\Medier\Skrivebord\Semester7\Web Intelligence\Mini-project2\WI2\WI2\obj\Debug\WI2.pdb
+D:\Medier\Skrivebord\WI2\WI2\bin\Debug\WI2.exe.config
+D:\Medier\Skrivebord\WI2\WI2\obj\Debug\WI2.exe
+D:\Medier\Skrivebord\WI2\WI2\obj\Debug\WI2.pdb
+D:\Medier\Skrivebord\WI2\WI2\bin\Debug\WI2.exe
+D:\Medier\Skrivebord\WI2\WI2\bin\Debug\WI2.pdb
+D:\Medier\Skrivebord\WI2\WI2\obj\Debug\WI2.csprojResolveAssemblyReference.cache
+D:\Medier\Skrivebord\Semester7\Web Intelligence\WI2\WI2\bin\Debug\WI2.exe.config
+D:\Medier\Skrivebord\Semester7\Web Intelligence\WI2\WI2\obj\Debug\WI2.exe
+D:\Medier\Skrivebord\Semester7\Web Intelligence\WI2\WI2\obj\Debug\WI2.pdb
+D:\Medier\Skrivebord\Semester7\Web Intelligence\WI2\WI2\bin\Debug\WI2.exe
+D:\Medier\Skrivebord\Semester7\Web Intelligence\WI2\WI2\bin\Debug\WI2.pdb
+D:\Medier\Skrivebord\Semester7\Web Intelligence\WI2\WI2\obj\Debug\WI2.csprojResolveAssemblyReference.cache
