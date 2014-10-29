@@ -1,0 +1,24 @@
+user: Morten
+friends: Johan Anna
+summary: *
+review: *
+
+user: Daniel
+friends: Johan
+summary: *
+review: *
+
+user: Casper
+friends: Anna
+summary: *
+review: *
+
+user: Anna
+friends: Morten Casper Johan
+summary: *
+review: *
+
+user: Johan
+friends: Morten Daniel Anna
+summary: *
+review: *

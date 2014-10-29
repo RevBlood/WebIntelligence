@@ -8,8 +8,10 @@ using System.IO;
 namespace WI2 {
     class Program {
         static void Main(string[] args) {
-            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\WI2\friendships.txt";
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\friendships.txt";
             List<User> users = GetData(dir);
+            int[,] adjacencyMatrix = MakeAdjacencyMatrix(users);
+            FindUserClique(adjacencyMatrix, 4);
             PrintUsers(users);
         }
 
@@ -46,6 +48,7 @@ namespace WI2 {
 
                 for (int i = 0; i < names.Count() - 1; i++) {
 
+                    isTwoNames = false;
                     string twoNames = names[i] + " " + names[i + 1];
 
                     foreach (User u in users) {
@@ -57,9 +60,12 @@ namespace WI2 {
 
                     if (!isTwoNames) {
                         replaceNames.Add(names[i]);
-                    } else {
-                        isTwoNames = false;
                     }
+                }
+
+                //Handle last user in friendlist, if any
+                if (!isTwoNames) {
+                    replaceNames.Add(names[names.Count-1]);
                 }
 
             }
@@ -82,6 +88,91 @@ namespace WI2 {
                 Console.WriteLine();
                 Console.ReadLine();
             }
+        }
+
+        static int[,] MakeAdjacencyMatrix(List<User> users) {
+
+            int size = users.Count;
+            int[,] adjacencyMatrix = new int[users.Count, users.Count];
+            Array.Clear(adjacencyMatrix, 0, adjacencyMatrix.Length);
+
+            for (int i = 0; i < users.Count; i++) {
+                for (int j = 0; j < users[i].GetFriends().Count; j++) {
+                    for (int k = 0; k < users.Count; k++) {
+                        if (users[i].GetFriends()[j] == users[k].GetName()) {
+                            adjacencyMatrix[i,k] = 1;
+                        }
+                    }
+                }
+            }
+
+            return adjacencyMatrix;
+        }
+
+        static List<int> FindUserClique(int[,] adjacencyMatrix, int initialUser) {
+
+            List<int> tempInitialUser = new List<int>();
+            tempInitialUser.Add(initialUser);
+            
+            List<int> tempClique = new List<int>();
+            List<int> friendsOfFriend = new List<int>();
+            List<int> friendships = new List<int>();
+            List<List<int>> processedCliques = new List<List<int>>();
+            List<int> maxClique = new List<int>();
+            Stack<List<int>> cliqueStack = new Stack<List<int>>();
+            cliqueStack.Push(tempInitialUser);
+
+            while (cliqueStack.Count > 0) {
+                //Get new clique from queue
+                List<int> clique = new List<int>(cliqueStack.Pop());
+                int lastInClique = clique.Last();
+
+                //Find friendships for last in clique
+                friendships.Clear();
+
+                for (int i = 0; i < adjacencyMatrix.GetUpperBound(0); i++) {
+                    if (adjacencyMatrix[lastInClique, i] == 1) {
+                        friendships.Add(i);
+                    }
+                }
+
+                //For each friendship, determine if seen before. If not, add to processed
+                foreach (int friendship in friendships) {
+                    friendsOfFriend.Clear();
+                    for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
+                        if (adjacencyMatrix[i, friendship] == 1) {
+                            friendsOfFriend.Add(i);
+                        }
+                    }
+
+                    if (ContainsAllItems(friendsOfFriend, clique)) {
+                        clique.Add(friendship);
+
+                        if (!processedCliques.Contains(clique)) {
+                            cliqueStack.Push(clique);
+                        } 
+                    } 
+                }
+                processedCliques.Add(clique);
+            }
+
+            foreach (List<int> list in processedCliques) {
+                if(list.Count > maxClique.Count) {
+                    maxClique = list;
+                }
+            }
+            foreach (int i in maxClique) {
+                Console.WriteLine(i);
+            }
+
+            Console.WriteLine("End");
+            Console.ReadLine();
+
+            return maxClique;
+        }
+
+        static bool ContainsAllItems(List<int> a, List<int> b) {
+            return !b.Except(a).Any();
         }
     }
 }
