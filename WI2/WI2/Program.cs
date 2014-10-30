@@ -11,7 +11,10 @@ namespace WI2 {
             string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\friendships.txt";
             List<User> users = GetData(dir);
             int[,] adjacencyMatrix = MakeAdjacencyMatrix(users);
-            FindUserClique(adjacencyMatrix, 4);
+
+            for (int i = 0; i < adjacencyMatrix.GetUpperBound(1); i++) {
+                FindUserClique(adjacencyMatrix, i);
+            }
             PrintUsers(users);
         }
 
@@ -165,7 +168,7 @@ namespace WI2 {
                 Console.WriteLine(i);
             }
 
-            Console.WriteLine("End");
+            Console.WriteLine("-----End-----");
             Console.ReadLine();
 
             return maxClique;
