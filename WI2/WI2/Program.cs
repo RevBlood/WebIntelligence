@@ -8,11 +8,11 @@ using System.IO;
 namespace WI2 {
     class Program {
         static void Main(string[] args) {
-            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\friendships.txt";
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\testdata.txt";
             List<User> users = GetData(dir);
             int[,] adjacencyMatrix = MakeAdjacencyMatrix(users);
-
-            for (int i = 0; i < adjacencyMatrix.GetUpperBound(1); i++) {
+            int test = adjacencyMatrix.GetUpperBound(0);
+            for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
                 FindUserClique(adjacencyMatrix, i);
             }
             PrintUsers(users);
@@ -126,14 +126,14 @@ namespace WI2 {
             cliqueStack.Push(tempInitialUser);
 
             while (cliqueStack.Count > 0) {
-                //Get new clique from queue
+                //Get new clique from stack
                 List<int> clique = new List<int>(cliqueStack.Pop());
                 int lastInClique = clique.Last();
 
                 //Find friendships for last in clique
                 friendships.Clear();
 
-                for (int i = 0; i < adjacencyMatrix.GetUpperBound(0); i++) {
+                for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
                     if (adjacencyMatrix[lastInClique, i] == 1) {
                         friendships.Add(i);
                     }
@@ -143,21 +143,67 @@ namespace WI2 {
                 foreach (int friendship in friendships) {
                     friendsOfFriend.Clear();
                     for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
-                        if (adjacencyMatrix[i, friendship] == 1) {
+                        if (adjacencyMatrix[friendship, i] == 1) {
                             friendsOfFriend.Add(i);
                         }
                     }
 
-                    if (ContainsAllItems(friendsOfFriend, clique)) {
-                        clique.Add(friendship);
-
-                        if (!processedCliques.Contains(clique)) {
-                            cliqueStack.Push(clique);
-                        } 
+                    if (ContainsAll(friendsOfFriend, clique)) {
+                        tempClique = new List<int>(clique);
+                        tempClique.Add(friendship);
+                        if (processedCliques.Count > 0) {
+                            foreach (List<int> x in processedCliques) {
+                                if (!listContainsList(tempClique, x)) {
+                                    cliqueStack.Push(tempClique);
+                                }
+                            }
+                        } else {
+                            cliqueStack.Push(tempClique);
+                        }
                     } 
                 }
                 processedCliques.Add(clique);
             }
+
+           /* List<int> friendshipsInClique = new List<int>();
+            List<List<int>> newProcessedCliques = new List<List<int>>();
+            List<int> tempList = new List<int>();
+
+            for (int i = 0; i < processedCliques.Count; i++) {
+                for (int j = 0; j < adjacencyMatrix.GetUpperBound(0); j++) {
+                    foreach (int person in processedCliques[i]) {
+                        if (adjacencyMatrix[person, j] == 1) {
+                            friendshipsInClique.Add(j);
+                        }
+                    }
+                }
+
+                for (int k = 0; k < processedCliques.Count; k++) {
+                    if (!listContainsList(processedCliques[k], processedCliques[i]) && !listContainsList(processedCliques[i], processedCliques[k])) {
+
+                        List<int> intersection = processedCliques[k].Intersect(friendshipsInClique).ToList();
+
+                        if (processedCliques[i].Count > processedCliques[k].Count && intersection.Count != 0) {
+                            double result = intersection.Count / (double)((processedCliques[k].Count * processedCliques[i].Count) - processedCliques[k].Count);
+                            if (result > 0.45) {
+                                tempList = new List<int>(processedCliques[k].Union(processedCliques[i]).ToList());
+                                newProcessedCliques.Add(tempList);
+                            }
+                        } else if(intersection.Count != 0) {
+                            double result = intersection.Count / (double)((processedCliques[i].Count * processedCliques[k].Count) - processedCliques[i].Count);
+                            if (result > 0.45) {
+                                tempList = new List<int>(processedCliques[k].Union(processedCliques[i]).ToList());
+                                newProcessedCliques.Add(tempList);
+                        } else { 
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            processedCliques = processedCliques.Union(newProcessedCliques).ToList();*/
+
 
             foreach (List<int> list in processedCliques) {
                 if(list.Count > maxClique.Count) {
@@ -174,7 +220,20 @@ namespace WI2 {
             return maxClique;
         }
 
-        static bool ContainsAllItems(List<int> a, List<int> b) {
+        static bool listContainsList(List<int> a, List<int> b) {
+            bool contained = true;
+
+            foreach (int element in a) {
+                if (!b.Contains(element)) {
+                    contained = false;
+                }
+            }
+            return contained;
+        }
+
+
+        //Determines if all elements of list b is contained in a (A can have more elements still)
+        static bool ContainsAll(List<int> a, List<int> b) {
             return !b.Except(a).Any();
         }
     }

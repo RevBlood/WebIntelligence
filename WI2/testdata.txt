@@ -1,5 +1,5 @@
 user: Morten
-friends: Johan Anna
+friends: Johan Anna Allan
 summary: *
 review: *
 
@@ -14,11 +14,16 @@ summary: *
 review: *
 
 user: Anna
-friends: Morten Casper Johan
+friends: Morten Casper Johan Allan
 summary: *
 review: *
 
 user: Johan
 friends: Morten Daniel Anna
+summary: *
+review: *
+
+user: Allan
+friends: Morten Anna
 summary: *
 review: *
