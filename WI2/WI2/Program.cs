@@ -165,6 +165,43 @@ namespace WI2 {
                 processedCliques.Add(clique);
             }
 
+            //http://bit.ly/1wrNgD4
+            bool okToAdd = true;
+            List<int> intersection = new List<int>();
+            double result;
+
+            foreach (List<int> clique in processedCliques) {
+
+                for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
+                    if (!clique.Contains(i)) {
+                        okToAdd = true;
+                        tempClique.Clear();
+                        tempClique = new List<int>(clique);
+                        tempClique.Add(i);
+
+                        foreach (int person in clique) {
+                            friendships.Clear();
+
+                            for (int j = 0; j <= adjacencyMatrix.GetUpperBound(0); j++) {
+                                if (adjacencyMatrix[person, j] == 1) {
+                                    friendships.Add(j);
+                                }
+                            }
+
+                            intersection = new List<int>(friendships.Intersect(tempClique).ToList());
+                            result = (double)intersection.Count / (double)tempClique.Count;
+
+                            if (result < 0.5) {
+                                okToAdd = false;
+                            }
+                        }
+                        if (okToAdd) {
+                            clique.Add(i);
+                        }
+                    }
+                }
+            }
+
            /* List<int> friendshipsInClique = new List<int>();
             List<List<int>> newProcessedCliques = new List<List<int>>();
             List<int> tempList = new List<int>();
