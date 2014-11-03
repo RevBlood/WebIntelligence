@@ -58,6 +58,7 @@ namespace WI2 {
                         if (u.GetName() == twoNames) {
                             replaceNames.Add(twoNames);
                             isTwoNames = true;
+                            break;
                         }
                     }
 
@@ -121,16 +122,21 @@ namespace WI2 {
             List<int> friendsOfFriend = new List<int>();
             List<int> friendships = new List<int>();
             List<List<int>> processedCliques = new List<List<int>>();
+            List<List<int>> tempCliques = new List<List<int>>();
+            List<List<int>> oldCliques = new List<List<int>>();
+            List<List<int>> newCliques = new List<List<int>>();
             List<int> maxClique = new List<int>();
             Stack<List<int>> cliqueStack = new Stack<List<int>>();
+            bool contained = false;
             cliqueStack.Push(tempInitialUser);
 
+            //As long as there's more cliques
             while (cliqueStack.Count > 0) {
                 //Get new clique from stack
                 List<int> clique = new List<int>(cliqueStack.Pop());
                 int lastInClique = clique.Last();
 
-                //Find friendships for last in clique
+                //Find friendships for last person in clique
                 friendships.Clear();
 
                 for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
@@ -139,7 +145,7 @@ namespace WI2 {
                     }
                 }
 
-                //For each friendship, determine if seen before. If not, add to processed
+                //For each friendship, find all friends (friends of friends)
                 foreach (int friendship in friendships) {
                     friendsOfFriend.Clear();
                     for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
@@ -148,16 +154,28 @@ namespace WI2 {
                         }
                     }
 
+                    //Determine if friends of friends includes the clique. If so, they are part of the clique, and added to queue
                     if (ContainsAll(friendsOfFriend, clique)) {
                         tempClique = new List<int>(clique);
                         tempClique.Add(friendship);
-                        if (processedCliques.Count > 0) {
-                            foreach (List<int> x in processedCliques) {
-                                if (!listContainsList(tempClique, x)) {
-                                    cliqueStack.Push(tempClique);
+                        contained = false;
+
+                        foreach (List<int> x in processedCliques) {
+                            if (listContainsList(tempClique, x)) {
+                                contained = true;
+                                break;
+                            }
+                        }
+                        if (!contained) {
+                            foreach (List<int> x in cliqueStack) {
+                                if (listContainsList(tempClique, x)) {
+                                    contained = true;
+                                    break;
                                 }
                             }
-                        } else {
+                        }
+
+                        if (!contained) {
                             cliqueStack.Push(tempClique);
                         }
                     } 
@@ -165,41 +183,64 @@ namespace WI2 {
                 processedCliques.Add(clique);
             }
 
-            //http://bit.ly/1wrNgD4
-            bool okToAdd = true;
-            List<int> intersection = new List<int>();
-            double result;
-
-            foreach (List<int> clique in processedCliques) {
-
-                for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
-                    if (!clique.Contains(i)) {
-                        okToAdd = true;
-                        tempClique.Clear();
-                        tempClique = new List<int>(clique);
-                        tempClique.Add(i);
-
-                        foreach (int person in clique) {
-                            friendships.Clear();
-
-                            for (int j = 0; j <= adjacencyMatrix.GetUpperBound(0); j++) {
-                                if (adjacencyMatrix[person, j] == 1) {
-                                    friendships.Add(j);
-                                }
-                            }
-
-                            intersection = new List<int>(friendships.Intersect(tempClique).ToList());
-                            result = (double)intersection.Count / (double)tempClique.Count;
-
-                            if (result < 0.5) {
-                                okToAdd = false;
-                            }
-                        }
-                        if (okToAdd) {
-                            clique.Add(i);
+            //Remove list subsets for duplication elimination
+            tempCliques = new List<List<int>>(processedCliques);
+            foreach (List<int> outerList in tempCliques) {
+                foreach (List<int> innerList in tempCliques) {
+                    if (!innerList.Equals(outerList)) {
+                        if (ContainsAll(outerList, innerList)) {
+                            processedCliques.Remove(innerList);
                         }
                     }
                 }
+            }
+
+
+            //http://bit.ly/1wrNgD4
+            //While cliques change, check if it's possible to add people to them,
+            //given the criteria that everyone in the clique is still friends with over 50% of people in clique
+            newCliques = new List<List<int>>(processedCliques);
+
+            while (!oldCliques.SequenceEqual(newCliques)) {
+                oldCliques = new List<List<int>>(newCliques);
+
+                bool okToAdd = true;
+                List<int> intersection = new List<int>();
+                double result;
+
+                foreach (List<int> clique in processedCliques) {
+
+                    for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
+                        if (!clique.Contains(i)) {
+                            okToAdd = true;
+                            tempClique.Clear();
+                            tempClique = new List<int>(clique);
+                            tempClique.Add(i);
+
+                            foreach (int person in clique) {
+                                friendships.Clear();
+
+                                for (int j = 0; j <= adjacencyMatrix.GetUpperBound(0); j++) {
+                                    if (adjacencyMatrix[person, j] == 1) {
+                                        friendships.Add(j);
+                                    }
+                                }
+
+                                intersection = new List<int>(friendships.Intersect(tempClique).ToList());
+                                result = (double)intersection.Count / (double)tempClique.Count;
+
+                                if (result < 0.5) {
+                                    okToAdd = false;
+                                    break;
+                                }
+                            }
+                            if (okToAdd) {
+                                clique.Add(i);
+                            }
+                        }
+                    }
+                }
+                newCliques = new List<List<int>>(processedCliques);
             }
 
            /* List<int> friendshipsInClique = new List<int>();
@@ -252,7 +293,6 @@ namespace WI2 {
             }
 
             Console.WriteLine("-----End-----");
-            Console.ReadLine();
 
             return maxClique;
         }

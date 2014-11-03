@@ -9,21 +9,36 @@ summary: *
 review: *
 
 user: Casper
-friends: Anna
+friends: Anna Kurt Allan Karl
 summary: *
 review: *
 
 user: Anna
-friends: Morten Casper Johan Allan
+friends: Morten Casper Johan Allan Lars
 summary: *
 review: *
 
 user: Johan
-friends: Morten Daniel Anna
+friends: Morten Daniel Anna Lars
 summary: *
 review: *
 
 user: Allan
-friends: Morten Anna
+friends: Morten Anna Lars Kurt Karl
+summary: *
+review: *
+
+user: Lars
+friends: Allan Anna Johan
+summary: *
+review: *
+
+user: Kurt
+friends: Allan Karl Casper
+summary: *
+review: *
+
+user: Karl
+friends: Allan Casper Kurt
 summary: *
 review: *
