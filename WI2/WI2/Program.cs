@@ -8,8 +8,11 @@ using System.IO;
 namespace WI2 {
     class Program {
         static void Main(string[] args) {
-            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\testdata.txt";
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\friendships.txt";
+            string sentiments = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Handin1\Crawler\WI2\SentimentTrainingData.txt";
             List<User> users = GetData(dir);
+            SentimentAnalyzer analyzer = new SentimentAnalyzer(sentiments);
+            analyzer.LoadReviewsQuickAndDirty();
             int[,] adjacencyMatrix = MakeAdjacencyMatrix(users);
             int test = adjacencyMatrix.GetUpperBound(0);
             for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
