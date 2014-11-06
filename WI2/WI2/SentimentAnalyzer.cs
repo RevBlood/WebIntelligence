@@ -10,10 +10,15 @@ namespace WI2 {
     class SentimentAnalyzer {
 
         private List<ReviewData> Reviews = new List<ReviewData>();
+        private List<ReviewData> TestReviews = new List<ReviewData>();
         private string Dir;
 
         public SentimentAnalyzer(string dir) {
             this.Dir = dir;
+        }
+
+        public ReviewData GetRandomReview() {
+            return TestReviews[0];
         }
 
         public void LoadReviewsFull() {
@@ -102,8 +107,28 @@ namespace WI2 {
                         break;
                     }
                 }
+                for (int i = 0; i < lines.Count; i += 9) {
+                    userId = lines[i + 1].Split(null).ToList()[1];
+                    score = Double.Parse(lines[i + 4].Split(null).ToList()[1].Replace('.', ','));
+                    summary = lines[i + 6].Split(null).ToList();
+                    summary.RemoveAt(0);
+                    reviewText = lines[i + 7].Split(null).ToList();
+                    reviewText.RemoveAt(0);
+
+                    this.Reviews.Add(new ReviewData(userId, score, summary, reviewText));
+                }
+
+                while ((line = sr.ReadLine()) != null) {
+                    lines.Add(line);
+
+                    //If we have 500 reviews from the file, stop. We don't want more.
+                    if (lines.Count == 9000) {
+                        break;
+                    }
+                }
             }
-            for (int i = 0; i < lines.Count; i += 9) {
+
+            for (int i = 4500; i < lines.Count; i += 9) {
                 userId = lines[i + 1].Split(null).ToList()[1];
                 score = Double.Parse(lines[i + 4].Split(null).ToList()[1].Replace('.', ','));
                 summary = lines[i + 6].Split(null).ToList();
@@ -111,20 +136,20 @@ namespace WI2 {
                 reviewText = lines[i + 7].Split(null).ToList();
                 reviewText.RemoveAt(0);
 
-                this.Reviews.Add(new ReviewData(userId, score, summary, reviewText));
+                this.TestReviews.Add(new ReviewData(userId, score, summary, reviewText));
             }
         }
 
         public void FindTypes() {
             List<string> regex = new List<string>();
             List<int> reviewTextAsTypes = new List<int>();
-            
+
             // 1: Phone Numbers
             regex.Add(@"(?:(?:\+?[01][\-\s.]*)?(?:[\(]?\d{3}[\-\s.\)]*)?\d{3}[\-\s.]*\d{4})");
 
             // 2: Emoticons
             regex.Add(@"(?:[<>]?[:;=8][\-o\*\']?[\)\]\(\[dDpP/\:\}\{@\|\\]|[\)\]\(\[dDpP/\:\}\{@\|\\][\-o\*\']?[:;=8][<>]?)");
-            
+
             // 3: HTML Tags
             regex.Add(@"<[^>]+>");
 
@@ -137,10 +162,10 @@ namespace WI2 {
             // 6: Everything else: Words with apostrophes or dashes | numbers, including fractions, decimals | words without apostrophes or dashes | ellipsis dots | everything else that isn't whitespace.
             regex.Add(@"(?:[a-z][a-z'\-_]+[a-z])|(?:[+\-]?\d+[,/.:-]\d+[+\-]?)|(?:[\w_]+)|(?:\.(?:\s*\.){1,})|(?:\S)");
 
-            foreach(ReviewData review in Reviews) {
-                foreach(string word in review.GetReviewText()) {
-                    for(int i = 0; i < regex.Count; i++) {
-                        if(Regex.IsMatch(word, regex[i])) {
+            foreach (ReviewData review in Reviews) {
+                foreach (string word in review.GetReviewText()) {
+                    for (int i = 0; i < regex.Count; i++) {
+                        if (Regex.IsMatch(word, regex[i])) {
                             reviewTextAsTypes.Add(i);
                             break;
                         }
@@ -152,14 +177,14 @@ namespace WI2 {
         }
 
         Dictionary<int, int> n_c = new Dictionary<int, int>();
-        Dictionary<int, double> p_c = new Dictionary<int, double>();    
+        Dictionary<int, double> p_c = new Dictionary<int, double>();
         public void learnModel() {
             int N = Reviews.Count();
             create_p_c_and_n_c(N);
             findWordSentimentWeight();
             findWordProbability();
-            
-         }
+
+        }
         int counter = 0;
         public void create_p_c_and_n_c(int N) {
             for (int i = 1; i < 6; i++) {
@@ -211,7 +236,7 @@ namespace WI2 {
 
         Dictionary<Tuple<string, double>, double> wordProbability = new Dictionary<Tuple<string, double>, double>();
         public void findWordProbability() {
-            foreach(Tuple<string, double> weightedWord in weightedWords.Keys) {
+            foreach (Tuple<string, double> weightedWord in weightedWords.Keys) {
                 if (!wordProbability.ContainsKey(weightedWord)) {
                     int test = (int)weightedWord.Item2;
                     wordProbability.Add(weightedWord, weightedWords[weightedWord] / n_c[(int)weightedWord.Item2]);
@@ -219,6 +244,52 @@ namespace WI2 {
                     throw new ArgumentException("oh my god this is some weird shit");
                 }
             }
+        }
+
+        Dictionary<int, double> predictions = new Dictionary<int, double>();
+        bool reviewGrade = false;
+        public void predictionModel(ReviewData review) {
+
+            foreach (string reviewTextWord in review.GetReviewText()) {
+                for (int i = 1; i < 6; i++) {
+                    if (!predictions.ContainsKey(i)) {
+                        predictions.Add(i, wordProbability[new Tuple<string, double>(reviewTextWord, i)] * p_c[i]);
+                    } else {
+                        if (wordProbability.ContainsKey(new Tuple<string, double>(reviewTextWord, i))) {
+                            double a = wordProbability[new Tuple<string, double>(reviewTextWord, i)] * p_c[i];
+                            double b = predictions[i] + a;
+                            predictions[i] = b;
+                        }
+                    }
+                }
+            }
+
+            double predictionSum = 0;
+            double result = 0;
+
+            for (int i = 1; i < 6; i++) {
+                predictionSum += predictions[i];
+                result =+ i * predictions[i];
+            }
+            
+           double realresultAMOK = result / predictionSum;
+
+            //MINDRE AMOK....
+
+            /*if (predictionSum / 5 >= 3) {
+                reviewGrade = true;
+            } else {
+                reviewGrade = false;
+            }*/
+            //Givet x,
+            // udregn:
+            // score(x, 1)
+            // score(x, 2)
+            // score(x, 3)
+            // score(x, 4)
+            // score(x, 5)
+            //return scores.max(); as prediction 
+            //   POSITIVE ELER NEGATIVE REVIEW
         }
 
     }

@@ -14,6 +14,7 @@ namespace WI2 {
             SentimentAnalyzer analyzer = new SentimentAnalyzer(sentiments);
             analyzer.LoadReviewsQuickAndDirty();
             analyzer.learnModel();
+            analyzer.predictionModel(analyzer.GetRandomReview());
             var hej = 0;
             //analyzer.FindTypes();
             /*
