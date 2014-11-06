@@ -1,3 +1,4 @@
 #Ignore the build directory
 Crawler/Crawler/obj/*
 Crawler/Crawler/bin/*
+SentimentTrainingData.txt

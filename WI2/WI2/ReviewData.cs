@@ -46,5 +46,9 @@ namespace WI2 {
         public void SetReviewTextAsTypes(List<int> reviewTextAsTypes) {
             this.ReviewTextAsTypes = reviewTextAsTypes;
         }
+
+        public double getReviewScore() {
+            return this.Score;
+        }
     }
 }

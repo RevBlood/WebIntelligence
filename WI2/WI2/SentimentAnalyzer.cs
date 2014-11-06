@@ -150,5 +150,76 @@ namespace WI2 {
                 reviewTextAsTypes.Clear();
             }
         }
+
+        Dictionary<int, int> n_c = new Dictionary<int, int>();
+        Dictionary<int, double> p_c = new Dictionary<int, double>();    
+        public void learnModel() {
+            int N = Reviews.Count();
+            create_p_c_and_n_c(N);
+            findWordSentimentWeight();
+            findWordProbability();
+            
+         }
+        int counter = 0;
+        public void create_p_c_and_n_c(int N) {
+            for (int i = 1; i < 6; i++) {
+                n_c.Add(i, 0);
+            }
+            foreach (ReviewData review in Reviews) {
+                switch (review.getReviewScore().ToString()) {
+                    case "1":
+                        n_c[1] += 1;
+                        break;
+                    case "2":
+                        n_c[2] += 1;
+                        break;
+                    case "3":
+                        n_c[3] += 1;
+                        break;
+                    case "4":
+                        n_c[4] += 1;
+                        break;
+                    case "5":
+                        n_c[5] += 1;
+                        break;
+                    default:
+                        throw new ArgumentException("no bucket, sad day");
+                        break;
+                }
+            }
+
+            for (int i = 1; i < 6; i++) {
+                p_c.Add(i, (double)n_c[i] / (double)N);
+            }
+        }
+
+        Dictionary<Tuple<string, double>, double> weightedWords = new Dictionary<Tuple<string, double>, double>();
+        public void findWordSentimentWeight() {
+            foreach (ReviewData review in Reviews) {
+                foreach (string word in review.GetReviewText()) {
+
+                    Tuple<string, double> curKey = new Tuple<string, double>(word, review.getReviewScore());
+
+                    if (!weightedWords.ContainsKey(curKey)) {
+                        weightedWords.Add(curKey, 1);
+                    } else {
+                        weightedWords[curKey]++;
+                    }
+                }
+            }
+        }
+
+        Dictionary<Tuple<string, double>, double> wordProbability = new Dictionary<Tuple<string, double>, double>();
+        public void findWordProbability() {
+            foreach(Tuple<string, double> weightedWord in weightedWords.Keys) {
+                if (!wordProbability.ContainsKey(weightedWord)) {
+                    int test = (int)weightedWord.Item2;
+                    wordProbability.Add(weightedWord, weightedWords[weightedWord] / n_c[(int)weightedWord.Item2]);
+                } else {
+                    throw new ArgumentException("oh my god this is some weird shit");
+                }
+            }
+        }
+
     }
 }

@@ -28,3 +28,9 @@ D:\Medier\Skrivebord\Semester7\Web Intelligence\Git\WI2\WI2\obj\Debug\WI2.pdb
 D:\Medier\Skrivebord\Semester7\Web Intelligence\Git\WI2\WI2\bin\Debug\WI2.exe
 D:\Medier\Skrivebord\Semester7\Web Intelligence\Git\WI2\WI2\bin\Debug\WI2.pdb
 D:\Medier\Skrivebord\Semester7\Web Intelligence\Git\WI2\WI2\obj\Debug\WI2.csprojResolveAssemblyReference.cache
+C:\Users\Casper\Documents\sw7_webintelligence\WI2\WI2\bin\Debug\WI2.exe.config
+C:\Users\Casper\Documents\sw7_webintelligence\WI2\WI2\obj\Debug\WI2.exe
+C:\Users\Casper\Documents\sw7_webintelligence\WI2\WI2\obj\Debug\WI2.pdb
+C:\Users\Casper\Documents\sw7_webintelligence\WI2\WI2\bin\Debug\WI2.exe
+C:\Users\Casper\Documents\sw7_webintelligence\WI2\WI2\bin\Debug\WI2.pdb
+C:\Users\Casper\Documents\sw7_webintelligence\WI2\WI2\obj\Debug\WI2.csprojResolveAssemblyReference.cache

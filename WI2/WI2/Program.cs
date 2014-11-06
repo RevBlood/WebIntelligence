@@ -8,18 +8,22 @@ using System.IO;
 namespace WI2 {
     class Program {
         static void Main(string[] args) {
-            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\friendships.txt";
-            string sentiments = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\SentimentTrainingData.txt";
-            List<User> users = GetData(dir);
+            //string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\friendships.txt";
+            string sentiments = @"C:\Users\Casper\Documents\sw7_webintelligence\SentimentTrainingData.txt";
+            //List<User> users = GetData(dir);
             SentimentAnalyzer analyzer = new SentimentAnalyzer(sentiments);
             analyzer.LoadReviewsQuickAndDirty();
-            analyzer.FindTypes();
+            analyzer.learnModel();
+            var hej = 0;
+            //analyzer.FindTypes();
+            /*
             int[,] adjacencyMatrix = MakeAdjacencyMatrix(users);
             int test = adjacencyMatrix.GetUpperBound(0);
             for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
                 FindUserClique(adjacencyMatrix, i);
             }
             PrintUsers(users);
+            */
         }
 
         static List<User> GetData(string dir) {
