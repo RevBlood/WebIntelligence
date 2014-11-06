@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace WI2 {
     class SentimentAnalyzer {
@@ -111,6 +112,42 @@ namespace WI2 {
                 reviewText.RemoveAt(0);
 
                 this.Reviews.Add(new ReviewData(userId, score, summary, reviewText));
+            }
+        }
+
+        public void FindTypes() {
+            List<string> regex = new List<string>();
+            List<int> reviewTextAsTypes = new List<int>();
+            
+            // 1: Phone Numbers
+            regex.Add(@"(?:(?:\+?[01][\-\s.]*)?(?:[\(]?\d{3}[\-\s.\)]*)?\d{3}[\-\s.]*\d{4})");
+
+            // 2: Emoticons
+            regex.Add(@"(?:[<>]?[:;=8][\-o\*\']?[\)\]\(\[dDpP/\:\}\{@\|\\]|[\)\]\(\[dDpP/\:\}\{@\|\\][\-o\*\']?[:;=8][<>]?)");
+            
+            // 3: HTML Tags
+            regex.Add(@"<[^>]+>");
+
+            // 4: Twitter Usernames
+            regex.Add(@"(?:@[\w_]+)");
+
+            // 5: Hashtags
+            regex.Add(@"(?:\#+[\w_]+[\w\'_\-]*[\w_]+)");
+
+            // 6: Everything else: Words with apostrophes or dashes | numbers, including fractions, decimals | words without apostrophes or dashes | ellipsis dots | everything else that isn't whitespace.
+            regex.Add(@"(?:[a-z][a-z'\-_]+[a-z])|(?:[+\-]?\d+[,/.:-]\d+[+\-]?)|(?:[\w_]+)|(?:\.(?:\s*\.){1,})|(?:\S)");
+
+            foreach(ReviewData review in Reviews) {
+                foreach(string word in review.GetReviewText()) {
+                    for(int i = 0; i < regex.Count; i++) {
+                        if(Regex.IsMatch(word, regex[i])) {
+                            reviewTextAsTypes.Add(i);
+                            break;
+                        }
+                    }
+                }
+                review.SetReviewTextAsTypes(reviewTextAsTypes);
+                reviewTextAsTypes.Clear();
             }
         }
     }

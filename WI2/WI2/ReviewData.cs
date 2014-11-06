@@ -16,6 +16,8 @@ namespace WI2 {
         private int Time;
         private List<string> Summary = new List<string>();
         private List<string> ReviewText = new List<string>();
+        private List<int> ReviewTextAsTypes = new List<int>();
+
 
         public ReviewData(string productId, string userId, string profileName, double helpful, double notHelpful, double score, int time, List<string> summary, List<string> reviewText) {
             this.ProductId = productId;
@@ -35,6 +37,14 @@ namespace WI2 {
             this.Score = score;
             this.Summary = summary;
             this.ReviewText = reviewText;
+        }
+
+        public List<string> GetReviewText() {
+            return this.ReviewText;
+        }
+
+        public void SetReviewTextAsTypes(List<int> reviewTextAsTypes) {
+            this.ReviewTextAsTypes = reviewTextAsTypes;
         }
     }
 }
