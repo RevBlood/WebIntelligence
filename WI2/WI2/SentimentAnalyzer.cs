@@ -12,6 +12,8 @@ namespace WI2 {
         private List<ReviewData> Reviews = new List<ReviewData>();
         private List<ReviewData> TestReviews = new List<ReviewData>();
         private string Dir;
+        string regexNeg = @"(?:^(?:never|no|nothing|nowhere|noone|none|not|havent|hasnt|hadnt|cant|couldnt|shouldnt|wont|wouldnt|dont|doesnt|didnt|isnt|arent|aint)$)|n't";
+        string regexEndSentence = @"^[.:;!?]$";
 
         public SentimentAnalyzer(string dir) {
             this.Dir = dir;
@@ -103,7 +105,7 @@ namespace WI2 {
                     lines.Add(line);
 
                     //If we have 500 reviews from the file, stop. We don't want more.
-                    if (lines.Count == 4500) {
+                    if (lines.Count == 90000) {
                         break;
                     }
                 }
@@ -122,7 +124,7 @@ namespace WI2 {
                     lines.Add(line);
 
                     //If we have 500 reviews from the file, stop. We don't want more.
-                    if (lines.Count == 9000) {
+                    if (lines.Count == 90018) {
                         break;
                     }
                 }
@@ -138,6 +140,94 @@ namespace WI2 {
 
                 this.TestReviews.Add(new ReviewData(userId, score, summary, reviewText));
             }
+        }
+
+        public void LoadEqualReviewAmounts(){
+
+            List<string> lines = new List<string>();
+            string userId;
+            double score;
+            List<string> summary = new List<string>();
+            List<string> reviewText = new List<string>();
+
+            List<ReviewData> one = new List<ReviewData>();
+            List<ReviewData> two = new List<ReviewData>();
+            List<ReviewData> three = new List<ReviewData>();
+            List<ReviewData> four = new List<ReviewData>();
+            List<ReviewData> five = new List<ReviewData>();
+
+            using (StreamReader sr = new StreamReader(this.Dir)) {
+                string line;
+                while ((line = sr.ReadLine()) != null) {
+                    lines.Add(line);
+
+                    if (lines.Count == 90000) {
+                        break;
+                    }
+                }
+                for (int i = 0; i < lines.Count; i += 9) {
+                    userId = lines[i + 1].Split(null).ToList()[1];
+                    score = Double.Parse(lines[i + 4].Split(null).ToList()[1].Replace('.', ','));
+                    summary = lines[i + 6].Split(null).ToList();
+                    summary.RemoveAt(0);
+                    reviewText = lines[i + 7].Split(null).ToList();
+                    reviewText.RemoveAt(0);
+
+                    switch (score.ToString()) {
+                        case "1":
+                            if (one.Count < 500) {
+                                one.Add(new ReviewData(userId, score, summary, reviewText));
+                            }
+                            break;
+                        case "2":
+                            if (two.Count < 500) {
+                                two.Add(new ReviewData(userId, score, summary, reviewText));
+                            }
+                            break;
+                        case "3":
+                            if (three.Count < 500) {
+                                three.Add(new ReviewData(userId, score, summary, reviewText));
+                            }
+                            break;
+                        case "4":
+                            if (four.Count < 500) {
+                                four.Add(new ReviewData(userId, score, summary, reviewText));
+                            }
+                            break;
+                        case "5":
+                            if (five.Count < 500) {
+                                five.Add(new ReviewData(userId, score, summary, reviewText));
+                            }
+                            break;
+                    }
+                }
+
+                while ((line = sr.ReadLine()) != null) {
+                    lines.Add(line);
+
+                    //If we have 500 reviews from the file, stop. We don't want more.
+                    if (lines.Count == 90018) {
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 4500; i < lines.Count; i += 9) {
+                userId = lines[i + 1].Split(null).ToList()[1];
+                score = Double.Parse(lines[i + 4].Split(null).ToList()[1].Replace('.', ','));
+                summary = lines[i + 6].Split(null).ToList();
+                summary.RemoveAt(0);
+                reviewText = lines[i + 7].Split(null).ToList();
+                reviewText.RemoveAt(0);
+
+                this.TestReviews.Add(new ReviewData(userId, score, summary, reviewText));
+            }
+
+            this.Reviews.AddRange(one);
+            this.Reviews.AddRange(two);
+            this.Reviews.AddRange(three);
+            this.Reviews.AddRange(four);
+            this.Reviews.AddRange(five);
         }
 
         public void FindTypes() {
@@ -220,11 +310,27 @@ namespace WI2 {
 
         Dictionary<Tuple<string, double>, double> weightedWords = new Dictionary<Tuple<string, double>, double>();
         public void findWordSentimentWeight() {
+
+            bool inMatch = false;
+
             foreach (ReviewData review in Reviews) {
                 foreach (string word in review.GetReviewText()) {
 
-                    Tuple<string, double> curKey = new Tuple<string, double>(word, review.getReviewScore());
+                    if (Regex.IsMatch(word, regexNeg) && !inMatch) {
+                        inMatch = true;
+                    } else if (Regex.IsMatch(word, regexNeg) && inMatch) {
+                        inMatch = false;
+                    }
 
+                    if (Regex.IsMatch(word, regexEndSentence)) {
+                        inMatch = false;
+                    }
+
+                    Tuple<string, double> curKey = new Tuple<string, double>(word, review.getReviewScore());
+                    if (inMatch) {
+                        curKey = new Tuple<string, double>("NEG_" + word, review.getReviewScore());
+                    }
+                    
                     if (!weightedWords.ContainsKey(curKey)) {
                         weightedWords.Add(curKey, 1);
                     } else {
@@ -246,17 +352,37 @@ namespace WI2 {
             }
         }
 
-        Dictionary<int, double> predictions = new Dictionary<int, double>();
-        bool reviewGrade = false;
-        public void predictionModel(ReviewData review) {
+        public void predictionModel(User user) {
 
-            foreach (string reviewTextWord in review.GetReviewText()) {
+            Dictionary<int, double> predictions = new Dictionary<int, double>();
+            bool inMatch = false;
+            string word;
+
+            foreach (string workWord in user.GetReview()) {
+                word = workWord;
+
+                if (Regex.IsMatch(word, regexNeg) && !inMatch) {
+                    inMatch = true;
+                } else if (Regex.IsMatch(word, regexNeg) && inMatch) {
+                    inMatch = false;
+                }
+
+                if (Regex.IsMatch(word, regexEndSentence)) {
+                    inMatch = false;
+                }
+
+                if (inMatch) {
+                    word = "NEG_" + word;
+                }
+
+
                 for (int i = 1; i < 6; i++) {
-                    if (!predictions.ContainsKey(i)) {
-                        predictions.Add(i, wordProbability[new Tuple<string, double>(reviewTextWord, i)] * p_c[i]);
-                    } else {
-                        if (wordProbability.ContainsKey(new Tuple<string, double>(reviewTextWord, i))) {
-                            double a = wordProbability[new Tuple<string, double>(reviewTextWord, i)] * p_c[i];
+                    if (wordProbability.ContainsKey(new Tuple<string, double>(word, i))) {
+                        if (!predictions.ContainsKey(i)) {
+                            predictions.Add(i, wordProbability[new Tuple<string, double>(word, i)] * p_c[i]);
+                        } else {
+
+                            double a = wordProbability[new Tuple<string, double>(word, i)] * p_c[i];
                             double b = predictions[i] + a;
                             predictions[i] = b;
                         }
@@ -268,11 +394,14 @@ namespace WI2 {
             double result = 0;
 
             for (int i = 1; i < 6; i++) {
-                predictionSum += predictions[i];
-                result =+ i * predictions[i];
+                if (predictions.ContainsKey(i)) {
+                    predictionSum += predictions[i];
+                    result += i * predictions[i];
+                }
             }
-            
-           double realresultAMOK = result / predictionSum;
+            // RUN IT now plz
+            double realresultAMOK = result / predictionSum;
+            user.SetScore(realresultAMOK);
 
             //MINDRE AMOK....
 

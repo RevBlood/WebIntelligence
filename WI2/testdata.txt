@@ -11,22 +11,22 @@ review: *
 user: Casper
 friends: Anna Kurt Allan Karl
 summary: *
-review: *
+review: k salat
 
 user: Anna
 friends: Morten Casper Johan Allan Lars
 summary: *
-review: *
+review: Without reservation, this is the best instant coffee I have ever tasted. I have consumed coffee in many different countries during over 40 years of travel. Starbucks has created a masterpiece with this product. It is a bit expensive, but well worth the cost.
 
 user: Johan
-friends: Morten Daniel Anna Lars
+friends: Morten Daniel Anna Lars Allan
 summary: *
-review: *
+review: I started my son on this powdered milk and he transitioned easily from breast milk without any problems.  I use a gallon container and mix the whole can (3 quarts) at once with luke warm water and it works out perfectly. I really like this company and their product and love that this milk is also Vit D fortified.  Once my son gets older and he consumes less milk we will transition to the fresh goat milk, since right now it doesn't fit in our budget.
 
 user: Allan
-friends: Morten Anna Lars Kurt Karl
+friends: Morten Anna Lars Kurt
 summary: *
-review: *
+review: The worst!!! it is just plan awful bitter and strong and you cannot taste the Hazel Nut flavor at all!!!!!  Do not buy this product save your money!!!!!
 
 user: Lars
 friends: Allan Anna Johan
@@ -39,6 +39,6 @@ summary: *
 review: *
 
 user: Karl
-friends: Allan Casper Kurt
+friends: Casper Kurt
 summary: *
 review: *

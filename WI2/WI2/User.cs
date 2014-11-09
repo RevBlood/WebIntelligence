@@ -9,10 +9,11 @@ namespace WI2 {
 
         string Name;
         List<string> Friends = new List<string>();
-        string Summary;
-        string Review;
+        List<string> Summary;
+        List<string> Review;
+        double ReviewScore;
 
-        public User(string name, List<string> friends, string summary, string review) {
+        public User(string name, List<string> friends, List<string> summary, List<string> review) {
             this.Name = name;
             this.Friends = friends;
             this.Summary = summary;
@@ -31,12 +32,20 @@ namespace WI2 {
             Friends.RemoveRange(i, 1);
         }
 
-        public string GetSummary() {
+        public List<string> GetSummary() {
             return Summary;
         }
 
-        public string GetReview() {
+        public List<string> GetReview() {
             return Review;
+        }
+
+        public void SetScore(double score) {
+            this.ReviewScore = score;
+        }
+
+        public double GetScore() {
+            return this.ReviewScore;
         }
     }
 }

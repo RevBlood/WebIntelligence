@@ -8,23 +8,72 @@ using System.IO;
 namespace WI2 {
     class Program {
         static void Main(string[] args) {
-            //string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\friendships.txt";
-            string sentiments = @"C:\Users\Casper\Documents\sw7_webintelligence\SentimentTrainingData.txt";
-            //List<User> users = GetData(dir);
-            SentimentAnalyzer analyzer = new SentimentAnalyzer(sentiments);
-            analyzer.LoadReviewsQuickAndDirty();
-            analyzer.learnModel();
-            analyzer.predictionModel(analyzer.GetRandomReview());
-            var hej = 0;
-            //analyzer.FindTypes();
-            /*
+
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\testdata.txt";
+            List<User> users = GetData(dir);
+            List<List<int>> KSalat = new List<List<int>>();
+
             int[,] adjacencyMatrix = MakeAdjacencyMatrix(users);
-            int test = adjacencyMatrix.GetUpperBound(0);
             for (int i = 0; i <= adjacencyMatrix.GetUpperBound(0); i++) {
-                FindUserClique(adjacencyMatrix, i);
+                KSalat.Add(FindUserClique(adjacencyMatrix, i));
             }
-            PrintUsers(users);
-            */
+
+            //PrintUsers(users);
+
+
+            string sentiments = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\SentimentTrainingData.txt";
+            //string dirdir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Semester7\Web Intelligence\Git\WI2\friendships.reviews.txt";
+            List<User> usersWithReviewsAndStuff = GetData(dir);
+            List<User> usersNoReview = new List<User>();
+            List<User> usersWithReview = new List<User>();
+            SentimentAnalyzer analyzer = new SentimentAnalyzer(sentiments);
+            analyzer.LoadEqualReviewAmounts();
+            analyzer.learnModel();
+
+            foreach (User user in usersWithReviewsAndStuff) {
+                if (user.GetReview()[0] == "*" && user.GetReview().Count == 1) {
+                    usersNoReview.Add(user);
+                } else {
+                    usersWithReview.Add(user);
+                    analyzer.predictionModel(user);
+                }
+            }
+            double min = 5.0;
+            double max = 1.0;
+            foreach (User user in usersWithReview) {
+                if (user.GetScore() < min) {
+                    min = user.GetScore();
+                }
+                if (user.GetScore() > max) {
+                    max = user.GetScore();
+                }
+            }
+            List<double> buyChance = new List<double>();
+            double total = 0.0;
+            double numberOfReviewers = 0;
+
+            //For all users
+            for (int i = 0; i < usersWithReviewsAndStuff.Count; i++) {
+
+                //If does not have a review (= no buy)
+                if (usersWithReviewsAndStuff[i].GetReview()[0] == "*" && usersWithReviewsAndStuff[i].GetReview().Count == 1) {
+
+                    //Go through the extended network
+                    for (int j = 0; j < KSalat[i].Count; j++) {
+                        //If user in network has a review, add to total
+                        if (usersWithReviewsAndStuff[KSalat[i][j]].GetReview()[0] == "*" && usersWithReviewsAndStuff[KSalat[i][j]].GetReview().Count == 1) {
+                        } else {
+                            numberOfReviewers++;
+                            total += usersWithReviewsAndStuff[j].GetScore();
+                        }
+                    }
+                }
+                buyChance.Add(total / numberOfReviewers);
+                total = 0;
+                numberOfReviewers = 0;
+            }
+
+            var hej = 0;
         }
 
         static List<User> GetData(string dir) {
@@ -47,8 +96,10 @@ namespace WI2 {
                 string name = lines[i].Remove(0, 6);
                 string friendLine = lines[i + 1].Remove(0, 9);
                 List<string> friends = friendLine.Split(null).ToList();
-                string summary = lines[i + 2].Split(null)[1];
-                string review = lines[i + 3].Split(null)[1];
+                List<string> summary = lines[i + 2].Split(null).ToList();
+                summary.RemoveAt(0);
+                List<string> review = lines[i + 3].Split(null).ToList();
+                review.RemoveAt(0);
 
                 User user = new User(name, friends, summary, review);
                 users.Add(user);
@@ -191,7 +242,7 @@ namespace WI2 {
                 }
                 processedCliques.Add(clique);
             }
-
+            
             //Remove list subsets for duplication elimination
             tempCliques = new List<List<int>>(processedCliques);
             foreach (List<int> outerList in tempCliques) {
@@ -203,8 +254,8 @@ namespace WI2 {
                     }
                 }
             }
-
-
+            
+            /*
             //http://bit.ly/1wrNgD4
             //While cliques change, check if it's possible to add people to them,
             //given the criteria that everyone in the clique is still friends with over 50% of people in clique
@@ -238,7 +289,7 @@ namespace WI2 {
                                 intersection = new List<int>(friendships.Intersect(tempClique).ToList());
                                 result = (double)intersection.Count / (double)tempClique.Count;
 
-                                if (result < 0.5) {
+                                if (result < 0.51) {
                                     okToAdd = false;
                                     break;
                                 }
@@ -251,6 +302,7 @@ namespace WI2 {
                 }
                 newCliques = new List<List<int>>(processedCliques);
             }
+            */
 
            /* List<int> friendshipsInClique = new List<int>();
             List<List<int>> newProcessedCliques = new List<List<int>>();
@@ -303,7 +355,16 @@ namespace WI2 {
 
             Console.WriteLine("-----End-----");
 
-            return maxClique;
+            List<int> Salat = new List<int>();
+            foreach (List<int> salat in processedCliques) {
+                foreach (int k in salat) {
+                    if (!Salat.Contains(k)) {
+                        Salat.Add(k);
+                    }
+                }
+            }
+
+            return Salat;
         }
 
         static bool listContainsList(List<int> a, List<int> b) {
